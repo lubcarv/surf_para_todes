@@ -1,7 +1,7 @@
 package dev.surfparatodes.surfparatodes.model.user.userlogin;
 
 import dev.surfparatodes.surfparatodes.enums.TypeRole;
-import dev.surfparatodes.surfparatodes.model.user.user.User;
+import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -57,9 +57,9 @@ public class UserLogin implements UserDetails {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    private Users user;
 
-    public UserLogin(String email, String fullName, User user, String encryptedPassword, TypeRole role, String phone) {
+    public UserLogin(String email, String fullName, Users user, String encryptedPassword, TypeRole role, String phone) {
         this.email = email;
         this.password = encryptedPassword;
         this.fullName = fullName;

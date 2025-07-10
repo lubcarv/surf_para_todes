@@ -1,5 +1,7 @@
 package dev.surfparatodes.surfparatodes.model.user.classroom;
 
+import dev.surfparatodes.surfparatodes.enums.ClassroomStatus;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -8,7 +10,9 @@ public class ClassroomResponseDTO {
     private Integer id;
     private Set<TeacherSummaryDTO> teachers;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String name;
+    private ClassroomStatus status;
+
 
     public Integer getId() {
         return id;
@@ -16,6 +20,14 @@ public class ClassroomResponseDTO {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<TeacherSummaryDTO> getTeachers() {
@@ -34,19 +46,19 @@ public class ClassroomResponseDTO {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
+    public ClassroomStatus getStatus() {
+        return status;
+    }
+    public void setStatus(ClassroomStatus status) {
+        this.status = status;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+
+
 
     public static class TeacherSummaryDTO {
         private Integer id;
         private String name;
-
-        public TeacherSummaryDTO() {}
 
         public TeacherSummaryDTO(Integer id, String name) {
             this.id = id;

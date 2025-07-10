@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.DayOfWeek;
 import java.util.Set;
 
 @Getter
@@ -22,6 +23,9 @@ public class Schedule {
 
     @OneToMany(mappedBy = "schedule")
     private Set<ClassroomSchedule> classroomSchedule;
+
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
 
 
     @Column(name = "shift", nullable = false)

@@ -1,6 +1,6 @@
 package dev.surfparatodes.surfparatodes.converters.user;
 
-import dev.surfparatodes.surfparatodes.model.user.user.User;
+import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import dev.surfparatodes.surfparatodes.model.user.user.UserCreateDTO;
 import dev.surfparatodes.surfparatodes.model.user.user.UserResponseDTO;
 import org.mapstruct.Mapper;
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 @Component @Mapper(componentModel = "spring")
 public class UserMapper {
 
-    public User toEntity(UserCreateDTO dto) {
-        User user = new User();
+    public Users toEntity(UserCreateDTO dto) {
+        Users user = new Users();
         user.setUserRole(dto.getUserRole());
         user.setRegisterName(dto.getRegisterName());
         user.setSocialName(dto.getSocialName());
@@ -27,7 +27,7 @@ public class UserMapper {
         return user;
     }
 
-    public UserResponseDTO toDTO(User user) {
+    public UserResponseDTO toDTO(Users user) {
         UserResponseDTO dto = new UserResponseDTO();
         dto.setId(user.getId());
         dto.setUserRole(user.getUserRole());

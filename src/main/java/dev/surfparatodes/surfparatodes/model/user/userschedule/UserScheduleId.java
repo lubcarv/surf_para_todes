@@ -51,3 +51,4 @@ public class UserScheduleId implements Serializable {
         return Objects.hash(getUserId(), getScheduleId());
     }
 }
+

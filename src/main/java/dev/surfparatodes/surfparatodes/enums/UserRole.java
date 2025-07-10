@@ -19,6 +19,7 @@ public enum UserRole {
         this.code = code;
     }
 
+    //mapeamento estático, evitando switch/case
     private static final Map<Integer, UserRole> lookup = new HashMap<>();
 
     static {

@@ -34,9 +34,9 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/type/2").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/type/1").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN") // <-- aqui está o ajuste
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
-
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

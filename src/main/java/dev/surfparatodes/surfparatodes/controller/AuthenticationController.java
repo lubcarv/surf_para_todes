@@ -1,11 +1,14 @@
 package dev.surfparatodes.surfparatodes.controller;
 
 import dev.surfparatodes.surfparatodes.infra.security.TokenService;
+import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import dev.surfparatodes.surfparatodes.model.user.userlogin.*;
 import dev.surfparatodes.surfparatodes.repository.UserLoginRepository;
 import dev.surfparatodes.surfparatodes.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,55 +18,66 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthenticationController {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserLoginRepository repository;
-
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final UserLoginRepository repository;
+    private final TokenService tokenService;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data) {
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(data.email(), data.password());
+    public ResponseEntity<?> login(@RequestBody @Valid AuthenticationDTO data) {
+        try {
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(data.email(), data.password());
 
-        Authentication authentication = authenticationManager.authenticate(authToken);
+            Authentication authentication = authenticationManager.authenticate(authToken);
 
-        UserLogin user = (UserLogin) authentication.getPrincipal();
-        String token = tokenService.generateToken(user);
+            UserLogin user = (UserLogin) authentication.getPrincipal();
+            String token = tokenService.generateToken(user);
 
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+            return ResponseEntity.ok(new LoginResponseDTO(token));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponseDTO("Falha na autenticação", e.getMessage()));
+        }
     }
 
-
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid RegisterDTO data) {
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data) {
         if (repository.findByEmail(data.email()) != null) {
-            return ResponseEntity.badRequest().body("Usuário já existe.");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponseDTO("Cadastro duplicado", "Usuário já existe."));
         }
 
-        String encryptedPassword = passwordEncoder.encode(data.password());
+        try {
+            Users user = userRepository.findById(data.userId())
+                    .orElseThrow(() -> new EntityNotFoundException("Usuário base não encontrado."));
 
-        UserLogin newUser = new UserLogin(
-                data.email(),
-                data.fullName(),
-                userRepository.getReferenceById(data.userId()),
-                encryptedPassword,
-                data.role(),
-                data.phone()
-        );
+            String encryptedPassword = passwordEncoder.encode(data.password());
 
-        repository.save(newUser);
-        return ResponseEntity.ok("Usuário registado com sucesso");
+            UserLogin newUser = new UserLogin(
+                    data.email(),
+                    data.fullName(),
+                    user,
+                    encryptedPassword,
+                    data.role(),
+                    data.phone()
+            );
+
+            repository.save(newUser);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageDTO("Usuário registrado com sucesso."));
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO("Erro no cadastro", e.getMessage()));
+        }
+    }
+
+    private record ErrorResponseDTO(String falhaNaAutenticação, String message) {
     }
 }

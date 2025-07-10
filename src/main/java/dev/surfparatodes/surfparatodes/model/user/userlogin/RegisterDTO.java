@@ -1,7 +1,7 @@
 package dev.surfparatodes.surfparatodes.model.user.userlogin;
 
 import dev.surfparatodes.surfparatodes.enums.TypeRole;
-import dev.surfparatodes.surfparatodes.model.user.user.User;
+import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

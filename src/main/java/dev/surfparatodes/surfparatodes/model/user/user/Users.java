@@ -1,11 +1,13 @@
 package dev.surfparatodes.surfparatodes.model.user.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import dev.surfparatodes.surfparatodes.converters.user.SchoolingTypeConverter;
 import dev.surfparatodes.surfparatodes.converters.user.TypeUserConverter;
 import dev.surfparatodes.surfparatodes.enums.SchoolingType;
 import dev.surfparatodes.surfparatodes.enums.TypeRole;
 import dev.surfparatodes.surfparatodes.enums.UserRole;
+import dev.surfparatodes.surfparatodes.model.user.classroom.Classroom;
 import dev.surfparatodes.surfparatodes.validation.ValidTypeUser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -15,12 +17,15 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "users")
-public class User {
+public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,10 +38,20 @@ public class User {
     @Column(name = "user_role", nullable = false)
     private UserRole userRole;
 
+    @ManyToMany(mappedBy = "teachers")
+    @JsonManagedReference
+    private List<Classroom> classrooms;
+
+
     @NotNull(message = "O nome completo é obrigatório.")
     @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres.")
     @Column(name = "register_name", nullable = false, length = 100)
     private String registerName;
+
+    /**
+     * Retorna o nome preferencial do usuário (nome social, se existir; caso contrário, nome de registro).
+     * Este método é somente para exibição e não deve ser usado para persistência.
+     */
 
     @Size(min = 3, max = 100, message = "O nome social deve ter entre 3 e 100 caracteres.")
     @Column(name = "social_name", length = 100)
@@ -94,11 +109,23 @@ public class User {
         createdAt = LocalDateTime.now();
     }
 
-    @Schema(hidden = true)
-    @JsonIgnore
+    /**
+     * Retorna o nome preferencial do usuário (nome social, se existir; caso contrário, nome de registro).
+     * Este método é somente para exibição e não deve ser usado para persistência.
+     */
     public String getDisplayName() {
-        return (socialName != null && !socialName.isBlank())
-                ? socialName.trim()
-                : (registerName != null ? registerName.trim() : "");
+        // Se houver socialName, e ele não for "string" ou "teste", retorna ele
+        if (socialName != null && !socialName.isBlank()) {
+            String trimmedSocial = socialName.trim();
+            if (!trimmedSocial.equalsIgnoreCase("string") && !trimmedSocial.equalsIgnoreCase("teste")) {
+                System.out.println("Display name retornado (social): " + trimmedSocial);
+                return trimmedSocial;
+            }
+        }
+
+        // Caso contrário, retorna o registerName (ou vazio, se não houver)
+        String fallback = (registerName != null ? registerName.trim() : "");
+        System.out.println("Display name retornado (registro): " + fallback);
+        return fallback;
     }
 }

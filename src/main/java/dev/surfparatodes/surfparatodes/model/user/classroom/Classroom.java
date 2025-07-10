@@ -1,8 +1,10 @@
 package dev.surfparatodes.surfparatodes.model.user.classroom;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import dev.surfparatodes.surfparatodes.enums.ClassroomStatus;
 import dev.surfparatodes.surfparatodes.model.user.classroomschedule.ClassroomSchedule;
 import dev.surfparatodes.surfparatodes.model.user.classroomschedule.ClassroomScheduleId;
-import dev.surfparatodes.surfparatodes.model.user.user.User;
+import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -12,8 +14,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
-@Setter
 @Data
 @Entity
 @Table(name = "classroom")
@@ -23,58 +23,33 @@ public class Classroom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "name")
+    private String name;
+
+    @ManyToMany
+    @JoinTable(
+            name = "classroom_teachers",
+            joinColumns = @JoinColumn(name = "classroom_id"),
+            inverseJoinColumns = @JoinColumn(name = "teacher_id")
+    )
+    @JsonBackReference
+    private Set<Users> teachers;
+
     @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL)
     private Set<ClassroomSchedule> classroomSchedules = new HashSet<>();
 
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @Where(clause = "type_user = 2")
-    @JoinTable(
-            name = "class_teacher",
-            joinColumns = @JoinColumn(name = "class_id"),
-            inverseJoinColumns = @JoinColumn(name = "teacher_id")
-    )
-    private Set<User> teachers = new HashSet<>();
-
-    @Column(name = "createdAt", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updatedAt")
-    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private ClassroomStatus status;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Set<User> getTeachers() {
-        return teachers;
-    }
-
-    public void setTeachers(Set<User> teachers) {
-        this.teachers = teachers;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
 
     @Override
     public boolean equals(Object o) {

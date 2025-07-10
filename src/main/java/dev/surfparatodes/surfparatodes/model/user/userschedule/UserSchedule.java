@@ -1,7 +1,7 @@
 package dev.surfparatodes.surfparatodes.model.user.userschedule;
 
 import dev.surfparatodes.surfparatodes.model.user.schedule.Schedule;
-import dev.surfparatodes.surfparatodes.model.user.user.User;
+import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,8 +14,8 @@ public class UserSchedule {
 
     @MapsId("userId")
     @ManyToOne
-    @JoinColumn(name="user_id")
-    private User userSchedule;
+    @JoinColumn(name="student_id")
+    private Users userSchedule;
 
     @MapsId("scheduleId")
     @ManyToOne

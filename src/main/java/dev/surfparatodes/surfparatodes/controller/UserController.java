@@ -2,7 +2,7 @@ package dev.surfparatodes.surfparatodes.controller;
 
 import dev.surfparatodes.surfparatodes.enums.UserRole;
 import dev.surfparatodes.surfparatodes.converters.user.UserMapper;
-import dev.surfparatodes.surfparatodes.model.user.user.User;
+import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import dev.surfparatodes.surfparatodes.model.user.user.UserCreateDTO;
 import dev.surfparatodes.surfparatodes.model.user.user.UserResponseDTO;
 import dev.surfparatodes.surfparatodes.service.UserService;
@@ -26,26 +26,34 @@ public class UserController {
     // Criar usuário
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserCreateDTO userDTO) {
-        User user = userMapper.toEntity(userDTO);
-        User savedUser = userService.createUser(user);
+        Users user = userMapper.toEntity(userDTO);
+        Users savedUser = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDTO(savedUser));
     }
 
     // Listar todos
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers()
+                .stream()
+                .map(userMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(users);
     }
 
     // Listar por tipo
     @GetMapping("/type/{userRole}")
-    public ResponseEntity<List<User>> getUsersByType(@PathVariable UserRole userRole) {
-        return ResponseEntity.ok(userService.getUsersByUserRole(userRole));
+    public ResponseEntity<List<UserResponseDTO>> getUsersByType(@PathVariable UserRole userRole) {
+        List<UserResponseDTO> users = userService.getUsersByUserRole(userRole)
+                .stream()
+                .map(userMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(users);
     }
 
     // Atualizar
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User user) {
+    public ResponseEntity<Users> updateUser(@PathVariable int id, @RequestBody Users user) {
         return ResponseEntity.ok(userService.updateUser(id, user));
     }
 

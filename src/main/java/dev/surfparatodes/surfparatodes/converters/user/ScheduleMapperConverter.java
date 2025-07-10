@@ -6,6 +6,8 @@ import dev.surfparatodes.surfparatodes.model.user.schedule.ScheduleResponseDTO;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -22,19 +24,23 @@ public class ScheduleMapperConverter implements ScheduleMapper {
     public ScheduleResponseDTO toResponseDTO(Schedule schedule) {
         return new ScheduleResponseDTO(
                 schedule.getId(),
+                schedule.getDayOfWeek(),
                 schedule.getShift(),
                 schedule.getScheduleTime(),
                 schedule.getActive(),
-                schedule.getClassroomSchedule()
+                Optional.ofNullable(schedule.getClassroomSchedule())
+                        .orElseGet(Set::of)
                         .stream()
                         .map(classroomScheduleMapper::toResponseDTO)
                         .collect(Collectors.toSet())
+
         );
     }
 
     @Override
     public Schedule toEntity(ScheduleCreateDTO dto) {
         Schedule schedule = new Schedule();
+        schedule.setDayOfWeek(dto.dayOfWeek());
         schedule.setShift(dto.shift());
         schedule.setScheduleTime(dto.scheduleTime());
         schedule.setActive(dto.active());
