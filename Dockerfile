@@ -1,21 +1,16 @@
-# Usa Java 21 (em vez de 17)
-FROM eclipse-temurin:21-jdk-alpine
+FROM ubuntu:latest AS build
 
-WORKDIR /app
+RUN apt-get update
+RUN apt-get install openjdk-21-jdk -y
+COPY . .
 
-# Copia apenas arquivos necessários para cache de dependências
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
+RUN apt-get install maven -y
+RUN mvn clean install
 
-# Faz o download das dependências (melhora performance do build)
-RUN ./mvnw dependency:go-offline
+FROM openjdk:21-jdk-slim
 
-# Copia o restante do código
-COPY src src
+EXPOSE 8080
 
-# Build do projeto (sem rodar testes)
-RUN ./mvnw clean package -DskipTests
+COPY --from=build /target/surfparatodes-0.0.1-SNAPSHOT.jar app.jar
 
-# Ajuste o nome do JAR gerado no target/
-CMD ["java", "-jar", "target/surfparatodes-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT["java","-jar","app.jar"]
