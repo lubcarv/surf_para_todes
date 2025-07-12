@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 
 @RestController
 @RequestMapping("/api/users")
@@ -49,6 +50,16 @@ public class UserController {
                 .map(userMapper::toDTO)
                 .toList();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/alunos/inativos")
+    public ResponseEntity<List<UserResponseDTO>> getInactiveStudents() {
+        List<UserResponseDTO> alunosInativos = userService.getUsersByRoleAndStatus(UserRole.ALUNO, false)
+                .stream()
+                .map(userMapper::toDTO)
+                .toList();
+
+        return ResponseEntity.ok(alunosInativos);
     }
 
     // Atualizar

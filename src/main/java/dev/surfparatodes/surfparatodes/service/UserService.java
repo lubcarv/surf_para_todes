@@ -58,6 +58,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public List<Users> getUsersByRoleAndStatus(UserRole role, boolean isActive) {
+        return userRepository.findByUserRoleAndActive(role, isActive);
+    }
+
     private void updateUserData(Users user, Users userDetails) {
         user.setRegisterName(userDetails.getRegisterName());
         user.setSocialName(userDetails.getSocialName());
