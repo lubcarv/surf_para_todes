@@ -63,13 +63,24 @@ public class SecurityConfigurations {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://127.0.0.1:5500", "http://localhost:5500"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+
+        // Aceita qualquer porta de localhost / 127.0.0.1
+        config.setAllowedOriginPatterns(
+                List.of("http://localhost:*", "http://127.0.0.1:*"));
+
+        // Métodos e cabeçalhos que o front realmente usa
+        config.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(
+                List.of("Authorization", "Content-Type", "Accept"));
+        // Se usa cookies/JWT via header Authorization, mantenha:
         config.setAllowCredentials(true);
 
+        // Se o front precisar ler algum header de resposta, exponha aqui
+        // config.setExposedHeaders(List.of("Authorization"));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/", config);
+        source.registerCorsConfiguration("/**", config);   // <- cobre TODAS as rotas
         return source;
     }
 }
