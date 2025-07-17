@@ -1,5 +1,6 @@
 package dev.surfparatodes.surfparatodes.infra.security;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -33,17 +34,76 @@ public class SecurityConfigurations {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/type/2").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/type/1").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()
+                                // Endpoints públicos
+                                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users/type/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users/alunos/inativos").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users/ativos").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users/inativos").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users/*/ativos").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users/*/inativos").permitAll()
+
+                                // 👇 ROTAS DO ClassroomController (GET públicos)
+                                .requestMatchers(HttpMethod.GET, "/api/classrooms").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/classrooms/*").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/classrooms/*/students").permitAll()
+
+                                // 👇 ROTAS DO ClassroomController (protegidas)
+                                .requestMatchers(HttpMethod.POST, "/api/classrooms").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/classrooms/*/teachers/add").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/classrooms/*/teachers/remove").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/classrooms/*").authenticated()
+
+                                // Proteção dos endpoints de usuário
+                                .requestMatchers(HttpMethod.PUT, "/api/users/*").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/users/*/reactivate").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/users/*").authenticated()
+
+                                // Swagger liberado
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                                // ROTAS ClassroomScheduleController
+
+// GETs públicos
+                                .requestMatchers(HttpMethod.GET, "/api/classroom-schedule").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/classroom-schedule/**").permitAll()
+
+// Protegidas (POST, PUT, DELETE, PATCH)
+                                .requestMatchers(HttpMethod.POST, "/api/classroom-schedule").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/classroom-schedule/**").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/classroom-schedule/**").authenticated()
+                                .requestMatchers(HttpMethod.PATCH, "/api/classroom-schedule/**").authenticated()
+
+                                // Endpoints públicos do ScheduleController
+                                .requestMatchers(HttpMethod.GET, "/api/schedules").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/schedules/{id}").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/schedules/shifts").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/schedules/times").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/schedules/daysOfWeek").permitAll()
+
+// Endpoints protegidos do ScheduleController
+                                .requestMatchers(HttpMethod.POST, "/api/schedules").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/schedules/*").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/schedules/*").authenticated()
+
+
+                                // UserScheduleController
+
+// Rotas POST e DELETE protegidas (exigem autenticação)
+                                .requestMatchers(HttpMethod.POST, "/api/user-schedule").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/user-schedule/batch").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/user-schedule/*/*").authenticated()
+
+// Rotas GET públicas
+                                .requestMatchers(HttpMethod.GET, "/api/user-schedule/schedule/*/students").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/user-schedule/student/*/schedules").permitAll()
+
+                                // Qualquer outro requer autenticação
+                                .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .build();

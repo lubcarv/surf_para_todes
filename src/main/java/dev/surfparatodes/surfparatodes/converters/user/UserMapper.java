@@ -1,5 +1,6 @@
 package dev.surfparatodes.surfparatodes.converters.user;
 
+import dev.surfparatodes.surfparatodes.model.user.user.UserUpdateDTO;
 import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import dev.surfparatodes.surfparatodes.model.user.user.UserCreateDTO;
 import dev.surfparatodes.surfparatodes.model.user.user.UserResponseDTO;
@@ -46,4 +47,25 @@ public class UserMapper {
         dto.setCreatedAt(user.getCreatedAt());
         return dto;
     }
+
+    public Users toEntity(UserUpdateDTO dto) {
+        Users user = new Users();
+        user.setUserRole(dto.getUserRole());
+        user.setRegisterName(dto.getRegisterName());
+        user.setSocialName(dto.getSocialName());
+        user.setBirthDate(dto.getBirthDate());
+        user.setGuardianName(dto.getGuardianName());
+        user.setGuardianRelationship(dto.getGuardianRelationship());
+        user.setGuardianPhone(dto.getGuardianPhone());
+        user.setGender(dto.getGender());
+        user.setRace(dto.getRace());
+        user.setPhone(dto.getPhone());
+        user.setEmail(dto.getEmail());
+        user.setSchooling(dto.getSchooling());
+        if (dto.getActive() != null) {
+            user.setActive(dto.getActive());
+        }
+        return user;
+    }
+
 }

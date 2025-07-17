@@ -2,6 +2,7 @@ package dev.surfparatodes.surfparatodes.controller;
 
 import dev.surfparatodes.surfparatodes.enums.UserRole;
 import dev.surfparatodes.surfparatodes.converters.user.UserMapper;
+import dev.surfparatodes.surfparatodes.model.user.user.UserUpdateDTO;
 import dev.surfparatodes.surfparatodes.model.user.user.Users;
 import dev.surfparatodes.surfparatodes.model.user.user.UserCreateDTO;
 import dev.surfparatodes.surfparatodes.model.user.user.UserResponseDTO;
@@ -40,30 +41,24 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    // Listar por tipo
-    @GetMapping("/type/{userRole}")
-    public ResponseEntity<List<UserResponseDTO>> getUsersByType(@PathVariable UserRole userRole) {
-        List<UserResponseDTO> users = userService.getUsersByUserRole(userRole)
-                .stream()
-                .map(userMapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(users);
-    }
 
-    @GetMapping("/alunos/inativos")
-    public ResponseEntity<List<UserResponseDTO>> getInactiveStudents() {
-        List<UserResponseDTO> alunosInativos = userService.getUsersByRoleAndStatus(UserRole.ALUNO, false)
-                .stream()
-                .map(userMapper::toDTO)
-                .toList();
 
-        return ResponseEntity.ok(alunosInativos);
-    }
 
-    // Atualizar
     @PutMapping("/{id}")
-    public ResponseEntity<Users> updateUser(@PathVariable int id, @RequestBody Users user) {
-        return ResponseEntity.ok(userService.updateUser(id, user));
+    public ResponseEntity<UserResponseDTO> updateUser(
+            @PathVariable int id,
+            @RequestBody @Valid UserUpdateDTO userDTO) {
+
+        Users userEntity = userMapper.toEntity(userDTO);
+        Users updatedUser = userService.updateUser(id, userEntity);
+        return ResponseEntity.ok(userMapper.toDTO(updatedUser));
+    }
+
+
+    @PutMapping("/{id}/reactivate")
+    public ResponseEntity<UserResponseDTO> reactivateUser(@PathVariable int id) {
+        Users reactivatedUser = userService.reactivateUser(id);
+        return ResponseEntity.ok(userMapper.toDTO(reactivatedUser));
     }
 
     // Deletar
@@ -72,4 +67,28 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Listar usuários ativos por tipo
+    @GetMapping("/{userRole}/ativos")
+    public ResponseEntity<List<UserResponseDTO>> getActiveUsersByRole(@PathVariable UserRole userRole) {
+        List<UserResponseDTO> users = userService
+                .getUsersByRoleAndStatus(userRole, true)
+                .stream()
+                .map(userMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(users);
+    }
+
+    // Listar usuários inativos por tipo
+    @GetMapping("/{userRole}/inativos")
+    public ResponseEntity<List<UserResponseDTO>> getInactiveUsersByRole(@PathVariable UserRole userRole) {
+        List<UserResponseDTO> users = userService
+                .getUsersByRoleAndStatus(userRole, false)
+                .stream()
+                .map(userMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(users);
+    }
+
+
 }
