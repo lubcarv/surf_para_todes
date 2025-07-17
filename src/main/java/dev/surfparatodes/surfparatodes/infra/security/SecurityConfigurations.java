@@ -33,15 +33,34 @@ public class SecurityConfigurations {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ROTAS DE AUTENTICAÇÃO
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+
+                        // ROTAS DE USUÁRIOS
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/users").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/type/2").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/type/1").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/type/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/alunos/inativos").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/").hasRole("ADMIN")
+
+                        // ROTAS DE HORÁRIOS
+                        .requestMatchers("/api/schedules/").permitAll()
+
+                        // ROTAS DE TURMAS
+                        .requestMatchers("/api/classrooms/").permitAll()
+
+                        // ROTAS DE AULAS (CLASSROOM-SCHEDULE)
+                        .requestMatchers("/api/classroom-schedule/").permitAll()
+
+                        // ROTAS DE INSCRIÇÕES EM HORÁRIOS
+                        .requestMatchers("/api/user-schedule/").permitAll()
+
+                        // SWAGGER / DOCS
+                        .requestMatchers("/swagger-ui/", "/v3/api-docs/").permitAll()
+
+                        // QUALQUER OUTRO
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
